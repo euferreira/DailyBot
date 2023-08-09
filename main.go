@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"dailybot/actions"
+	"dailybot/utils"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -53,24 +54,31 @@ func onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	if strings.HasPrefix(m.Message.Content, "/dailyb") {
+	if strings.HasPrefix(m.Message.Content, "d.b") {
 		executarAcao(s, m, m.Message.Content)
 	}
 }
 
 func executarAcao(s *discordgo.Session, m *discordgo.MessageCreate, trecho string) {
-	if strings.Contains(trecho, "/dailyb remember") {
+	trecho = strings.Replace(trecho, "d.b", "", 1)
+	trecho = strings.TrimSpace(trecho)
+
+	action := utils.DecodeAction(trecho)
+	switch action {
+	case utils.Help:
+		actions.SendHelp(s, m)
+	case utils.Remember:
 		actions.EnviarMensagemNoChat1(s, m, trecho)
 		go actions.ProcessReminders(s)
-	} else if strings.Contains(trecho, "/dailyb help") {
-		actions.SendHelp(s, m)
-	} else if strings.Contains(trecho, "/dailyb oi") {
-		actions.EnviarMensagem(s, m, "Olá, como posso ajudar?")
-	} else if strings.Contains(trecho, "/dailyb status") {
+	case utils.Status:
 		actions.ShowStatus(s, m)
-	} else if strings.Contains(trecho, "/dailyb barreto") {
-		actions.EnviarMensagem(s, m, "Barreto, vai curtir tuas férias! XD")
-	} else {
+	case utils.Hi:
+		actions.EnviarMensagem(s, m, "Olá, como posso ajudar?")
+	case utils.Flood:
+		actions.SendMessageUser(s, m)
+	case utils.Barreto:
+		actions.EnviarMensagem(s, m, "Barreto, para de barretice")
+	default:
 		actions.EnviarMensagem(s, m, "Não entendi.. Poderia repetir? (X_X)")
 	}
 }

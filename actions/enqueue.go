@@ -53,7 +53,7 @@ func EnviarMensagemNoChat1(s *discordgo.Session, m *discordgo.MessageCreate, tre
 
 	voiceState, err := s.State.VoiceState(m.GuildID, m.Author.ID)
 	if err != nil || voiceState == nil {
-		EnviarMensagem(s, m, "Você precisa estar em um canal de voz para usar esse comando")
+		EnviarMensagem(s, m, "Você precisa estar em um canal de voz para usar esse comando :(")
 		return
 	}
 
